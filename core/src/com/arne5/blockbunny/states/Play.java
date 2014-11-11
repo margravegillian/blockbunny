@@ -1,9 +1,12 @@
 package com.arne5.blockbunny.states;
 
+import com.arne5.blockbunny.Game;
 import com.arne5.blockbunny.handlers.GameStateManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import static com.arne5.blockbunny.handlers.Box2DVars.PPM;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
@@ -15,6 +18,8 @@ public class Play extends GameState
 
 		private World world;
 		private Box2DDebugRenderer b2dr;
+		private OrthographicCamera b2dCam;
+
 		public Play(GameStateManager gsm)
 			{
 				super(gsm);
@@ -24,7 +29,7 @@ public class Play extends GameState
 
 				//create platform
 				BodyDef bdef = new BodyDef();
-				bdef.position.set(160,120);
+				bdef.position.set(160 /PPM,120/PPM);
 				bdef.type = BodyDef.BodyType.StaticBody;
 				Body body = world.createBody(bdef);
 				//static body - dont' move, unaffected by forces = ground
@@ -33,20 +38,24 @@ public class Play extends GameState
 
 				//dynamic body alwasy get affecdted by forces= player
 				PolygonShape shape = new PolygonShape();
-				shape.setAsBox(50,5);
+				shape.setAsBox(50 /PPM,5/PPM);
 				FixtureDef fdef = new FixtureDef();
 				fdef.shape = shape;
 				body.createFixture(fdef);
 
 				// create falling box
-				bdef.position.set(160,200);
+				bdef.position.set(160/PPM,200/PPM);
 				bdef.type = BodyDef.BodyType.DynamicBody;
 				body = world.createBody(bdef);
-				shape.setAsBox(5, 5);
+				shape.setAsBox(5/PPM, 5/PPM);
 				fdef.shape = shape;
-				//make box bouncy
-				fdef.restitution= 1f;
+				//make box bouncy if want
+				//fdef.restitution= 1f;
 				body.createFixture(fdef);
+
+				//create box2d cam
+				b2dCam = new OrthographicCamera();
+				b2dCam.setToOrtho(false, Game.V_WIDTH / PPM,Game.V_HEIGHT /PPM);
 
 			}
 		public void handleInput()
@@ -66,7 +75,7 @@ public class Play extends GameState
 				//clear screen
 				Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 				//draw box2dworld
-				b2dr.render(world,cam.combined);
+				b2dr.render(world,b2dCam.combined);
 
 			}
 		public void dispose()
